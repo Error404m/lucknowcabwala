@@ -979,6 +979,7 @@
         }
     }
 </style>
+
 </head>
 <body>
 
@@ -1432,6 +1433,9 @@
 </script>
 
 
+<iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vRRmw5gqILNiKN-HxgPUFNEBKbASIcvBTFZQLSP5YN5F1I6cHkMHYhr09CpuIAEhxBj4p7B4IdTBQEG/pubhtml?gid=304500223&amp;single=true&amp;widget=true&amp;headers=false"></iframe>
+
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
     const bookingForm = document.querySelector('.booking-form');
@@ -1673,6 +1677,74 @@
         });
     }
 });
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.querySelector('.sidebar');
+        const sidebarOverlay = document.querySelector('.sidebar-overlay');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebarClose = document.querySelector('.sidebar-close');
+        const navLinks = document.querySelectorAll('.sidebar-nav li a');
+        
+        // Toggle sidebar
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.add('active');
+            sidebarOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        
+        // Close sidebar
+        function closeSidebar() {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        sidebarClose.addEventListener('click', closeSidebar);
+        sidebarOverlay.addEventListener('click', closeSidebar);
+        
+        // Close sidebar when clicking on a link (mobile)
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                closeSidebar();
+                
+                // Update active class
+                navLinks.forEach(item => {
+                    item.parentElement.classList.remove('active');
+                });
+                this.parentElement.classList.add('active');
+            });
+        });
+        
+        // Update active menu item based on scroll position
+        function updateActiveMenuOnScroll() {
+            const sections = document.querySelectorAll('section');
+            const scrollPosition = window.scrollY;
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100;
+                const sectionHeight = section.offsetHeight;
+                const sectionId = section.getAttribute('id');
+                
+                if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                    navLinks.forEach(link => {
+                        link.parentElement.classList.remove('active');
+                        if (link.getAttribute('href') === `#${sectionId}`) {
+                            link.parentElement.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Listen for scroll events
+        window.addEventListener('scroll', updateActiveMenuOnScroll);
+        
+        // Set initial active menu item
+        updateActiveMenuOnScroll();
+    });
 </script>
 </body>
 </html>
