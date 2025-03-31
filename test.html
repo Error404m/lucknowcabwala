@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Google Sheets Integration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        #status {
+            margin-top: 20px;
+            padding: 10px;
+            font-weight: bold;
+            display: none;
+        }
+        .success {
+            color: white;
+            background-color: green;
+        }
+        .failure {
+            color: white;
+            background-color: red;
+        }
+        .loading {
+            color: white;
+            background-color: orange;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Google Sheets Test</h2>
+    <button id="testButton">Send Test Data</button>
+    <div id="status"></div>
+
+    <script>
+        function showMessage(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = type;
+            statusDiv.style.display = 'block';
+        }
+
+        function saveToGoogleSheet(data) {
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbyx0CezFEsA9IlN5TFoTQPpukN_jqRNFWJWootXBqOwK5UCuNNZMLLpCFRroqmD09aY/exec';
+
+            showMessage('Sending data...', 'loading');
+
+            fetch(scriptURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.text())
+            .then(result => {
+                if (result.includes("Success")) {
+                    showMessage('✅ Data saved successfully!', 'success');
+                } else {
+                    showMessage('❌ Error saving data!', 'failure');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('❌ Failed to send data!', 'failure');
+            });
+        }
+
+        document.getElementById('testButton').addEventListener('click', function() {
+            const testData = {
+                bookingId: "AB-123456",
+                pickup: "Lucknow Airport",
+                destination: "Hazratganj",
+                dateTime: new Date().toLocaleString(),
+                date: new Date().toISOString().split('T')[0],
+                time: new Date().toLocaleTimeString(),
+                passengers: "2",
+                carType: "SUV",
+                formattedCarType: "SUV (₹28/KM)",
+                phone: "9876543210",
+                timestamp: new Date().toISOString()
+            };
+
+            saveToGoogleSheet(testData);
+        });
+    </script>
+
+</body>
+</html>
