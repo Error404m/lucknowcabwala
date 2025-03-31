@@ -4,6 +4,146 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LucknowCabWala - Premium Taxi Service in Lucknow</title>
+
+    <style>
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-container {
+            background-color: #fff;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            transform: translateY(-50px);
+            transition: all 0.4s ease;
+        }
+        
+        .modal-overlay.active .modal-container {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #4CAF50, #2196F3);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            outline: none;
+        }
+        
+        .modal-body {
+            padding: 30px;
+        }
+        
+        .confirmation-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 40px;
+            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+        }
+        
+        .booking-details {
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .booking-details p {
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .booking-details p span:first-child {
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .booking-id {
+            font-size: 18px;
+            color: #4CAF50;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 2px dashed #4CAF50;
+            border-radius: 6px;
+            background-color: rgba(76, 175, 80, 0.1);
+        }
+        
+        .modal-footer {
+            padding: 20px;
+            text-align: center;
+            background-color: #f9f9f9;
+            border-top: 1px solid #eee;
+        }
+        
+        .modal-footer .btn {
+            padding: 10px 30px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #4CAF50, #2196F3);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-footer .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .fadeIn {
+            animation: fadeIn 0.5s ease forwards;
+        }
+    </style>
+
     <style>
         :root {
             --primary: #ffc107;
@@ -90,7 +230,7 @@
         
         /* Hero Section */
         .hero {
-            background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('img/city.jpg');
+            background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('img/l.jpg');
             background-size: cover;
             background-position: center;
             height: 100vh;
@@ -616,10 +756,10 @@
                             <label for="car-type">Car Type</label>
                             <select id="car-type" class="form-control" required>
                                 <option value="">Select car type</option>
-                                <option value="economy">Economy</option>
-                                <option value="premium">Premium Sedan</option>
-                                <option value="suv">SUV</option>
-                                <option value="luxury">Luxury</option>
+                                <option value="economy">Economy (₹19/KM)</option>
+                                <option value="premium">Premium Sedan (₹19/KM)</option>
+                                <option value="suv">SUV (₹28/KM)</option>
+                                <option value="luxury">Luxury (₹46/KM)</option>
                             </select>
                         </div>
                     </div>
@@ -836,6 +976,34 @@
         </div>
     </footer>
 
+    <div class="modal-overlay" id="confirmationModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>Booking Confirmed!</h2>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="confirmation-icon">✓</div>
+                <h3 style="text-align: center;">Thank you for booking with us!</h3>
+                <div class="booking-id">
+                    Booking ID: <span id="bookingId"></span>
+                </div>
+                <div class="booking-details">
+                    <p><span>Pickup Location:</span> <span id="modalPickup"></span></p>
+                    <p><span>Destination:</span> <span id="modalDestination"></span></p>
+                    <p><span>Date & Time:</span> <span id="modalDateTime"></span></p>
+                    <p><span>Passengers:</span> <span id="modalPassengers"></span></p>
+                    <p><span>Car Type:</span> <span id="modalCarType"></span></p>
+                    <p><span>Phone Number:</span> <span id="modalPhone"></span></p>
+                </div>
+                <p style="text-align: center; color: #666;">A confirmation has been sent to your phone number.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" id="doneButton">Done</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Mobile menu toggle
         const menuToggle = document.querySelector('.menu-toggle');
@@ -859,11 +1027,127 @@
         });
         
         // Simple form submission (for demo purposes)
-        const bookingForm = document.querySelector('.booking-form');
-        bookingForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Thank you for your booking request! We will contact you shortly to confirm your ride.');
-        });
+        // const bookingForm = document.querySelector('.booking-form');
+        // bookingForm.addEventListener('submit', function(e) {
+        //     e.preventDefault();
+        //     alert('Thank you for your booking request! We will contact you shortly to confirm your ride.');
+        // });
     </script>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let today = new Date().toISOString().split('T')[0];  
+        document.getElementById("date").setAttribute("min", today);
+    });
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const bookingForm = document.querySelector('.booking-form');
+        const modal = document.getElementById('confirmationModal');
+        const closeModal = document.getElementById('closeModal');
+        const doneButton = document.getElementById('doneButton');
+        
+        // Generate a random booking ID
+        function generateBookingId() {
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const numbers = '0123456789';
+            let id = '';
+            
+            // Format: XX-NNNNNN (2 letters followed by 6 numbers)
+            for (let i = 0; i < 2; i++) {
+                id += letters.charAt(Math.floor(Math.random() * letters.length));
+            }
+            
+            id += '-';
+            
+            for (let i = 0; i < 6; i++) {
+                id += numbers.charAt(Math.floor(Math.random() * numbers.length));
+            }
+            
+            return id;
+        }
+        
+        // Format the car type to display properly
+        function formatCarType(type) {
+            if (!type) return '';
+            
+            const types = {
+                'economy': 'Economy (₹19/KM)',
+                'premium': 'Premium Sedan (₹19/KM)',
+                'suv': 'SUV (₹28/KM)',
+                'luxury': 'Luxury (₹46/KM)'
+            };
+            
+            return types[type] || type;
+        }
+        
+        // Handle form submission
+        bookingForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Get form values
+            const pickup = document.getElementById('pickup').value;
+            const destination = document.getElementById('destination').value;
+            const date = document.getElementById('date').value;
+            const time = document.getElementById('time').value;
+            const passengers = document.getElementById('passengers').value;
+            const carType = document.getElementById('car-type').value;
+            const phone = document.getElementById('phone').value;
+            
+            // Format date and time
+            const dateObj = new Date(date + 'T' + time);
+            const formattedDateTime = dateObj.toLocaleString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            // Generate booking ID
+            const bookingId = generateBookingId();
+            
+            // Populate modal with booking details
+            document.getElementById('bookingId').textContent = bookingId;
+            document.getElementById('modalPickup').textContent = pickup;
+            document.getElementById('modalDestination').textContent = destination;
+            document.getElementById('modalDateTime').textContent = formattedDateTime;
+            document.getElementById('modalPassengers').textContent = passengers;
+            document.getElementById('modalCarType').textContent = formatCarType(carType);
+            document.getElementById('modalPhone').textContent = phone;
+            
+            // Show modal with animation
+            modal.classList.add('active');
+            setTimeout(() => {
+                document.querySelector('.modal-container').classList.add('fadeIn');
+            }, 100);
+            
+            // Reset form (optional)
+            // bookingForm.reset();
+        });
+        
+        // Close modal when clicking the close button
+        closeModal.addEventListener('click', function() {
+            modal.classList.remove('active');
+        });
+        
+        // Close modal when clicking the done button
+        doneButton.addEventListener('click', function() {
+            modal.classList.remove('active');
+            // Reset form after closing
+            bookingForm.reset();
+        });
+        
+        // Close modal when clicking outside the modal
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+    });
+</script>
 </body>
 </html>
