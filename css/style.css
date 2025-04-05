@@ -190,7 +190,7 @@
     }
     
     .container {
-        /* width: 90%; */
+        width: 90%;
         max-width: 1200px;
         margin: 0 auto;
         padding: 0 15px;
@@ -375,10 +375,13 @@
     
     .service-card {
         background-color: white;
-        border-radius: 10px;
+        width: 100%;
+        /* max-width: 1800px; */
+        border-radius: 28px;
         overflow: hidden;
         box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         transition: 0.3s;
+        margin-left: -49px;
     }
     
     .service-card:hover {
@@ -386,7 +389,7 @@
     }
     
     .service-img {
-        height: 200px;
+        height: 280px;
         overflow: hidden;
     }
     
@@ -684,7 +687,7 @@
         }
         
         .service-card {
-            max-width: 350px;
+            max-width: 730px;
             margin: 0 auto;
         }
     }
